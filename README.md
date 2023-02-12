@@ -53,3 +53,8 @@ If you prefer another method, no problem - this plugin is designed to simply pro
 
 -   `normal_and_visual_mode` contains the decoders/encoders, which can be used in both normal and visual mode
 -   `normal_mode` contains the rest of the mappings, and they can only be used in normal mode
+
+## Caveat
+
+Because (I think) vim-unimpaired binds using `<plug>` weird stuff, `vim.o.timeoutlen` has to expire, before you move on to submenus, like `yo`, `]o`, for those sub-menus to show in which-key.  
+The mappings will still work if you don't wait, but if you do `yo` before `vim.o.timeoutlen` has expired, you won't see any which-key menu. ¯\_(ツ)\_/¯
