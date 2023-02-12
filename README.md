@@ -58,3 +58,5 @@ If you prefer another method, no problem - this plugin is designed to simply pro
 
 Because (I think) vim-unimpaired binds using `<plug>` weird stuff, `vim.o.timeoutlen` has to expire, before you move on to submenus, like `yo`, `]o`, for those sub-menus to show in which-key.  
 The mappings will still work if you don't wait, but if you do `yo` before `vim.o.timeoutlen` has expired, you won't see any which-key menu. ¯\_(ツ)\_/¯
+
+Also, for some reason, if you lazy-load vim-unimpaired on `keys = { "[", "]", "y", "=", "<lt>", ">" }` for instance, vim-unimpaired doesn't work ¯\_(ツ)\_/¯
