@@ -26,6 +26,25 @@ require("lazy").setup({
 })
 ```
 
+Another options is using it as a dependency of which-key like this:
+
+```lua
+require("lazy").setup({
+  { "folke/which-key.nvim"
+    , dependencies = { "afreakk/unimpaired-which-key.nvim" }
+    , config = function()
+        local wk = require("which-key")
+        wk.setup({
+            -- whatever options you got
+        })
+        local uwk = require("unimpaired-which-key")
+        wk.register(uwk.normal_mode)
+        wk.register(uwk.normal_and_visual_mode, { mode = { "n", "v" } })
+    end
+    },
+})
+```
+
 If you prefer another method, no problem - this plugin is designed to simply provide you with helpful which-key compatible tables.
 
 ## Details
