@@ -18,9 +18,7 @@ require("lazy").setup({
     , dependencies = { "tpope/vim-unimpaired" }
     , config = function()
         local wk = require("which-key")
-        local uwk = require("unimpaired-which-key")
-        wk.register(uwk.normal_mode)
-        wk.register(uwk.normal_and_visual_mode, { mode = { "n", "v" } })
+        wk.add(require("unimpaired-which-key"))
     end
     },
 })
@@ -37,9 +35,7 @@ require("lazy").setup({
         wk.setup({
             -- whatever options you got
         })
-        local uwk = require("unimpaired-which-key")
-        wk.register(uwk.normal_mode)
-        wk.register(uwk.normal_and_visual_mode, { mode = { "n", "v" } })
+        wk.add(require("unimpaired-which-key"))
     end
     },
 })
@@ -49,10 +45,7 @@ If you prefer another method, no problem - this plugin is designed to simply pro
 
 ## Details
 
-`unimpaired-which-key` gives you two tables, and that's all it does
-
--   `normal_and_visual_mode` contains the decoders/encoders, which can be used in both normal and visual mode
--   `normal_mode` contains the rest of the mappings, and they can only be used in normal mode
+`unimpaired-which-key` gives you a table which can be passed to the `wk.add()` function, and that's all it does
 
 ## Caveat
 
