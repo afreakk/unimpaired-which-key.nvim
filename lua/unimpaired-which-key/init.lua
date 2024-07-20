@@ -1,25 +1,26 @@
 local M = {}
 
-local options = function(prefix)
+local options = function(keyPrefix, namePrefix)
     return {
-        b = prefix .. " background",
-        c = prefix .. " cursorline",
-        d = prefix .. " diff",
-        h = prefix .. " hlsearch",
-        i = prefix .. " ignorecase",
-        l = prefix .. " list",
-        n = prefix .. " number",
-        r = prefix .. " relativenumber",
-        s = prefix .. " spell",
-        t = prefix .. " colorcolumn",
-        u = prefix .. " cursorcolumn",
-        v = prefix .. " virtualedit",
-        w = prefix .. " wrap",
-        x = prefix .. " cursorline + cursorcolumn",
+        { keyPrefix, group = namePrefix },
+        { keyPrefix .. "b", desc = namePrefix .. " background" },
+        { keyPrefix .. "c", desc = namePrefix .. " cursorline" },
+        { keyPrefix .. "d", desc = namePrefix .. " diff" },
+        { keyPrefix .. "h", desc = namePrefix .. " hlsearch" },
+        { keyPrefix .. "i", desc = namePrefix .. " ignorecase" },
+        { keyPrefix .. "l", desc = namePrefix .. " list" },
+        { keyPrefix .. "n", desc = namePrefix .. " number" },
+        { keyPrefix .. "r", desc = namePrefix .. " relativenumber" },
+        { keyPrefix .. "s", desc = namePrefix .. " spell" },
+        { keyPrefix .. "t", desc = namePrefix .. " colorcolumn" },
+        { keyPrefix .. "u", desc = namePrefix .. " cursorcolumn" },
+        { keyPrefix .. "v", desc = namePrefix .. " virtualedit" },
+        { keyPrefix .. "w", desc = namePrefix .. " wrap" },
+        { keyPrefix .. "x", desc = namePrefix .. " cursorline + cursorcolumn" },
     }
 end
 
-local previous = function(isPrevious)
+local previous = function(keyPrefix, groupName, isPrevious)
     local above = isPrevious and "above" or "below"
     local prev = isPrevious and "prev" or "next"
     local first = isPrevious and "first" or "last"
@@ -45,10 +46,12 @@ local previous = function(isPrevious)
         ["<C-Q>"] = last .. " entry in " .. prev .. " file in quickfixlist", --cnfile
         ["<C-T>"] = prev .. " matching tag in preview window", --ptnext
     }
-    local pp = {}
+    local pp = {
+        { keyPrefix, group = groupName },
+    }
     for k, v in pairs(p) do
         -- make first char in each str uppercase, and wrap in table
-        pp[k] = v:gsub("^%l", string.upper)
+        table.insert(pp, { keyPrefix .. k, name = v:gsub("^%l", string.upper) })
     end
     return pp
 end
@@ -62,43 +65,51 @@ local decoders = function()
     }
     local decoderMaps = {}
     for k, decoderName in pairs(keyDecoderName) do
-        decoderMaps["[" .. k] = decoderName .. " encode"
-        decoderMaps["[" .. k .. k] = decoderName .. " encode line"
-        decoderMaps["]" .. k] = decoderName .. " decode"
-        decoderMaps["]" .. k .. k] = decoderName .. " decode line"
+        table.insert(decoderMaps, {
+            mode = { "n" },
+            { "[" .. k .. k, desc = decoderName .. " encode line" },
+            { "]" .. k .. k, desc = decoderName .. " decode line" },
+        })
+        table.insert(decoderMaps, {
+            mode = { "v" },
+            { "[" .. k, desc = decoderName .. " encode" },
+            { "]" .. k, desc = decoderName .. " decode" },
+        })
     end
     return decoderMaps
 end
 
-M.normal_and_visual_mode = decoders()
 
-M.normal_mode = {
-    ["<lt>"] = { -- cant use <
-        P = "Paste before linewise, decreasing indent",
-        p = "Paste after linewise, decreasing indent",
-        s = vim.tbl_extend("error", options("Enable"), { name = "+Enable" })
-    },
-    ["["]    = vim.tbl_extend("error", previous(true), {
-        name = "+Previous",
-        o = vim.tbl_extend("error", options("Enable"), { name = "+Enable" })
-    }),
-    ["]"]    = vim.tbl_extend("error", previous(false), {
-        name = "+Next",
-        o = vim.tbl_extend("error", options("Disable"), { name = "+Disable" })
-    }),
-    [">"]    = {
-        P = "Paste before linewise, increasing indent",
-        p = "Paste after linewise, increasing indent",
-        s = vim.tbl_extend("error", options("Disable"), { name = "+Disable" }),
-    },
-    y        = {
-        o = vim.tbl_extend("error", options("Toggle"), { name = "+Toggle" }),
-    },
-    ["="]    = {
-        P = "Paste before linewise, reindenting",
-        p = "Paste after linewise, reindenting",
-        s = vim.tbl_extend("error", options("Toggle"), { name = "+Toggle" })
-    },
-}
+local normals = function()
+    local normalMaps = {
+        mode = { "n" },
+    }
+
+    vim.list_extend(normalMaps, {
+        { "<P", name = "Paste before linewise, decreasing indent" },
+        { "<p", name = "Paste after linewise, decreasing indent" },
+    })
+    vim.list_extend(normalMaps, options("<s", "Enable"))
+    vim.list_extend(normalMaps, previous("[", "Previous", true))
+    vim.list_extend(normalMaps, options("[o", "Enable"))
+    vim.list_extend(normalMaps, previous("]", "Next", false))
+    vim.list_extend(normalMaps, options("]o", "Disable"))
+    vim.list_extend(normalMaps, {
+        { ">P", name = "Paste before linewise, increasing indent" },
+        { ">p", name = "Paste after linewise, increasing indent" },
+    })
+    vim.list_extend(normalMaps, options(">s", "Disable"))
+    vim.list_extend(normalMaps, options("yo", "Toggle"))
+    vim.list_extend(normalMaps, {
+        { "=P", name = "Paste before linewise, reindenting" },
+        { "=p", name = "Paste after linewise, reindenting" },
+    })
+    vim.list_extend(normalMaps, options("=s", "Toggle"))
+
+    return normalMaps
+end
+
+vim.list_extend(M, decoders())
+table.insert(M, normals())
 
 return M
