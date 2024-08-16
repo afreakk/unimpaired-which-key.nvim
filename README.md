@@ -53,3 +53,9 @@ Because (I think) vim-unimpaired binds using `<plug>` weird stuff, `vim.o.timeou
 The mappings will still work if you don't wait, but if you do `yo` before `vim.o.timeoutlen` has expired, you won't see any which-key menu. ¯\_(ツ)\_/¯
 
 Also, for some reason, if you lazy-load vim-unimpaired on `keys = { "[", "]", "y", "=", "<lt>", ">" }` for instance, vim-unimpaired doesn't work ¯\_(ツ)\_/¯
+
+
+  
+## Compatibility with `which-key` v2.x
+
+This plugin has been updated to leverage the new APIs added in `which-key` v3. For compatibility with older versions of `which-key`, pin this plugin to the `v0.1` tag.
