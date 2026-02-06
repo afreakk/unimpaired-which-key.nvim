@@ -51,7 +51,7 @@ local previous = function(keyPrefix, groupName, isPrevious)
     }
     for k, v in pairs(p) do
         -- make first char in each str uppercase, and wrap in table
-        table.insert(pp, { keyPrefix .. k, name = v:gsub("^%l", string.upper) })
+        table.insert(pp, { keyPrefix .. k, desc = v:gsub("^%l", string.upper) })
     end
     return pp
 end
@@ -86,8 +86,8 @@ local normals = function()
     }
 
     vim.list_extend(normalMaps, {
-        { "<P", name = "Paste before linewise, decreasing indent" },
-        { "<p", name = "Paste after linewise, decreasing indent" },
+        { "<P", desc = "Paste before linewise, decreasing indent" },
+        { "<p", desc = "Paste after linewise, decreasing indent" },
     })
     vim.list_extend(normalMaps, options("<s", "Enable"))
     vim.list_extend(normalMaps, previous("[", "Previous", true))
@@ -95,14 +95,14 @@ local normals = function()
     vim.list_extend(normalMaps, previous("]", "Next", false))
     vim.list_extend(normalMaps, options("]o", "Disable"))
     vim.list_extend(normalMaps, {
-        { ">P", name = "Paste before linewise, increasing indent" },
-        { ">p", name = "Paste after linewise, increasing indent" },
+        { ">P", desc = "Paste before linewise, increasing indent" },
+        { ">p", desc = "Paste after linewise, increasing indent" },
     })
     vim.list_extend(normalMaps, options(">s", "Disable"))
     vim.list_extend(normalMaps, options("yo", "Toggle"))
     vim.list_extend(normalMaps, {
-        { "=P", name = "Paste before linewise, reindenting" },
-        { "=p", name = "Paste after linewise, reindenting" },
+        { "=P", desc = "Paste before linewise, reindenting" },
+        { "=p", desc = "Paste after linewise, reindenting" },
     })
     vim.list_extend(normalMaps, options("=s", "Toggle"))
 
@@ -111,5 +111,19 @@ end
 
 vim.list_extend(M, decoders())
 table.insert(M, normals())
+
+-- Recommended triggers for which-key v3.
+-- Keys like y, <, >, = are Vim operators, so which-key's <auto> trigger
+-- won't intercept them (doing so would break yank, indent, etc.).
+-- These multi-character triggers let which-key show the popup after the
+-- full prefix is typed, avoiding operator-pending conflicts.
+M.triggers = {
+    { "yo", mode = "n" },
+    { "[o", mode = "n" },
+    { "]o", mode = "n" },
+    { "<s", mode = "n" },
+    { ">s", mode = "n" },
+    { "=s", mode = "n" },
+}
 
 return M
