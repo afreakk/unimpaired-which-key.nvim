@@ -17,9 +17,9 @@ require("lazy").setup({
   { "afreakk/unimpaired-which-key.nvim"
     , dependencies = { "tpope/vim-unimpaired" }
     , config = function()
-        local wk = require("which-key")
         local uwk = require("unimpaired-which-key")
-        wk.add(uwk)
+        require("which-key").add(uwk)
+        uwk.setup() -- creates keymaps for yo/<s/>s/=s so which-key popup works
     end
     },
 })
@@ -36,12 +36,9 @@ require("lazy").setup({
         local uwk = require("unimpaired-which-key")
         wk.setup({
             -- whatever options you got
-            triggers = vim.list_extend(
-                { { "<auto>", mode = "nixsotc" } },
-                uwk.triggers
-            ),
         })
         wk.add(uwk)
+        uwk.setup() -- creates keymaps for yo/<s/>s/=s so which-key popup works
     end
     },
 })
@@ -63,21 +60,10 @@ This means sub-menus like `yo` (toggle options) won't appear in the which-key
 popup by default. **Do not** add single-character triggers like `y` — that
 breaks operator-pending mode entirely.
 
-Instead, this plugin exports `M.triggers` with multi-character trigger
-prefixes (`yo`, `<s`, `>s`, `=s`, `[o`, `]o`) that you can merge into your
-which-key setup. These let which-key show the popup *after* the full prefix
-is typed, so operators still work normally:
-
-```lua
-local uwk = require("unimpaired-which-key")
-require("which-key").setup({
-    triggers = vim.list_extend(
-        { { "<auto>", mode = "nixsotc" } },
-        uwk.triggers
-    ),
-})
-require("which-key").add(uwk)
-```
+Calling `uwk.setup()` fixes this by creating explicit normal-mode keymaps for
+`yo`, `<s`, `>s`, and `=s` that open the which-key popup via `wk.show()`.
+Longer vim-unimpaired mappings (e.g. `yon`, `yob`) still take priority when
+typed without pausing, so normal usage is unaffected.
 
 ## Other caveats
 

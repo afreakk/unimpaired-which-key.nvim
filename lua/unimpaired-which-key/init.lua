@@ -112,18 +112,20 @@ end
 vim.list_extend(M, decoders())
 table.insert(M, normals())
 
--- Recommended triggers for which-key v3.
--- Keys like y, <, >, = are Vim operators, so which-key's <auto> trigger
--- won't intercept them (doing so would break yank, indent, etc.).
--- These multi-character triggers let which-key show the popup after the
--- full prefix is typed, avoiding operator-pending conflicts.
-M.triggers = {
-    { "yo", mode = "n" },
-    { "[o", mode = "n" },
-    { "]o", mode = "n" },
-    { "<s", mode = "n" },
-    { ">s", mode = "n" },
-    { "=s", mode = "n" },
-}
+-- Keys like y, <, >, = are Vim operators. which-key's <auto> trigger
+-- can't intercept them without breaking operator-pending mode (yank,
+-- indent, etc.), so sub-menus like yo/=s never appear.
+--
+-- setup() creates explicit normal-mode keymaps for these prefixes that
+-- open the which-key popup via wk.show(). Longer vim-unimpaired mappings
+-- (e.g. yon, yob) still take priority when typed without pausing.
+M.setup = function()
+    local wk = require("which-key")
+    for _, prefix in ipairs({ "yo", "<s", ">s", "=s" }) do
+        vim.keymap.set("n", prefix, function()
+            wk.show({ keys = prefix, mode = "n" })
+        end)
+    end
+end
 
 return M
