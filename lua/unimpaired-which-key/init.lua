@@ -99,6 +99,9 @@ local normals = function()
         { ">p", name = "Paste after linewise, increasing indent" },
     })
     vim.list_extend(normalMaps, options(">s", "Disable"))
+    vim.list_extend(normalMaps, {
+        { "y", group = "Toggle" },
+    })
     vim.list_extend(normalMaps, options("yo", "Toggle"))
     vim.list_extend(normalMaps, {
         { "=P", name = "Paste before linewise, reindenting" },

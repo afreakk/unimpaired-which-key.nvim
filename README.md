@@ -49,10 +49,27 @@ If you prefer another method, no problem - this plugin is designed to simply pro
 
 ## Caveat
 
-Because (I think) vim-unimpaired binds using `<plug>` weird stuff, `vim.o.timeoutlen` has to expire, before you move on to submenus, like `yo`, `]o`, for those sub-menus to show in which-key.  
+Because (I think) vim-unimpaired binds using `<plug>` weird stuff, `vim.o.timeoutlen` has to expire, before you move on to submenus, like `yo`, `]o`, for those sub-menus to show in which-key.
 The mappings will still work if you don't wait, but if you do `yo` before `vim.o.timeoutlen` has expired, you won't see any which-key menu. ¯\_(ツ)\_/¯
 
 Also, for some reason, if you lazy-load vim-unimpaired on `keys = { "[", "]", "y", "=", "<lt>", ">" }` for instance, vim-unimpaired doesn't work ¯\_(ツ)\_/¯
+
+### `yo` and the `y` operator
+
+Since `y` is the yank operator, which-key may switch to operator-pending mode after `timeoutlen`, hiding the `yo` submenu. If the `yo` popup does not appear, you can configure which-key to defer the `y` operator popup:
+
+```lua
+require("which-key").setup({
+    defer = function(ctx)
+        if ctx.operator == "y" then
+            return true
+        end
+        return vim.list_contains({ "<C-V>", "V" }, ctx.mode)
+    end,
+})
+```
+
+This makes which-key wait for one more key after `y` before showing the popup, so pressing `yo` will correctly display the toggle options submenu.
 
 
   
