@@ -17,14 +17,15 @@ require("lazy").setup({
   { "afreakk/unimpaired-which-key.nvim"
     , dependencies = { "tpope/vim-unimpaired" }
     , config = function()
-        local wk = require("which-key")
-        wk.add(require("unimpaired-which-key"))
+        local uwk = require("unimpaired-which-key")
+        require("which-key").add(uwk)
+        uwk.setup() -- creates keymaps for yo/<s/>s/=s so which-key popup works
     end
     },
 })
 ```
 
-Another options is using it as a dependency of which-key like this:
+Another option is using it as a dependency of which-key like this:
 
 ```lua
 require("lazy").setup({
@@ -32,10 +33,12 @@ require("lazy").setup({
     , dependencies = { "afreakk/unimpaired-which-key.nvim" }
     , config = function()
         local wk = require("which-key")
+        local uwk = require("unimpaired-which-key")
         wk.setup({
             -- whatever options you got
         })
-        wk.add(require("unimpaired-which-key"))
+        wk.add(uwk)
+        uwk.setup() -- creates keymaps for yo/<s/>s/=s so which-key popup works
     end
     },
 })
@@ -47,9 +50,24 @@ If you prefer another method, no problem - this plugin is designed to simply pro
 
 `unimpaired-which-key` gives you a table which can be passed to the `wk.add()` function, and that's all it does
 
-## Caveat
+## Operator-key conflicts (yo, \<s, >s, =s)
 
-Because (I think) vim-unimpaired binds using `<plug>` weird stuff, `vim.o.timeoutlen` has to expire, before you move on to submenus, like `yo`, `]o`, for those sub-menus to show in which-key.  
+Some vim-unimpaired prefixes start with Vim operator keys (`y`, `<`, `>`, `=`).
+which-key v3's `<auto>` trigger won't intercept these because doing so would
+break their normal operator behavior (yank, indent, dedent, reindent).
+
+This means sub-menus like `yo` (toggle options) won't appear in the which-key
+popup by default. **Do not** add single-character triggers like `y` — that
+breaks operator-pending mode entirely.
+
+Calling `uwk.setup()` fixes this by creating explicit normal-mode keymaps for
+`yo`, `<s`, `>s`, and `=s` that open the which-key popup via `wk.show()`.
+Longer vim-unimpaired mappings (e.g. `yon`, `yob`) still take priority when
+typed without pausing, so normal usage is unaffected.
+
+## Other caveats
+
+Because (I think) vim-unimpaired binds using `<plug>` weird stuff, `vim.o.timeoutlen` has to expire, before you move on to submenus, like `yo`, `]o`, for those sub-menus to show in which-key.
 The mappings will still work if you don't wait, but if you do `yo` before `vim.o.timeoutlen` has expired, you won't see any which-key menu. ¯\_(ツ)\_/¯
 
 Also, for some reason, if you lazy-load vim-unimpaired on `keys = { "[", "]", "y", "=", "<lt>", ">" }` for instance, vim-unimpaired doesn't work ¯\_(ツ)\_/¯

@@ -51,7 +51,7 @@ local previous = function(keyPrefix, groupName, isPrevious)
     }
     for k, v in pairs(p) do
         -- make first char in each str uppercase, and wrap in table
-        table.insert(pp, { keyPrefix .. k, name = v:gsub("^%l", string.upper) })
+        table.insert(pp, { keyPrefix .. k, desc = v:gsub("^%l", string.upper) })
     end
     return pp
 end
@@ -86,8 +86,8 @@ local normals = function()
     }
 
     vim.list_extend(normalMaps, {
-        { "<P", name = "Paste before linewise, decreasing indent" },
-        { "<p", name = "Paste after linewise, decreasing indent" },
+        { "<P", desc = "Paste before linewise, decreasing indent" },
+        { "<p", desc = "Paste after linewise, decreasing indent" },
     })
     vim.list_extend(normalMaps, options("<s", "Enable"))
     vim.list_extend(normalMaps, previous("[", "Previous", true))
@@ -95,14 +95,14 @@ local normals = function()
     vim.list_extend(normalMaps, previous("]", "Next", false))
     vim.list_extend(normalMaps, options("]o", "Disable"))
     vim.list_extend(normalMaps, {
-        { ">P", name = "Paste before linewise, increasing indent" },
-        { ">p", name = "Paste after linewise, increasing indent" },
+        { ">P", desc = "Paste before linewise, increasing indent" },
+        { ">p", desc = "Paste after linewise, increasing indent" },
     })
     vim.list_extend(normalMaps, options(">s", "Disable"))
     vim.list_extend(normalMaps, options("yo", "Toggle"))
     vim.list_extend(normalMaps, {
-        { "=P", name = "Paste before linewise, reindenting" },
-        { "=p", name = "Paste after linewise, reindenting" },
+        { "=P", desc = "Paste before linewise, reindenting" },
+        { "=p", desc = "Paste after linewise, reindenting" },
     })
     vim.list_extend(normalMaps, options("=s", "Toggle"))
 
@@ -111,5 +111,21 @@ end
 
 vim.list_extend(M, decoders())
 table.insert(M, normals())
+
+-- Keys like y, <, >, = are Vim operators. which-key's <auto> trigger
+-- can't intercept them without breaking operator-pending mode (yank,
+-- indent, etc.), so sub-menus like yo/=s never appear.
+--
+-- setup() creates explicit normal-mode keymaps for these prefixes that
+-- open the which-key popup via wk.show(). Longer vim-unimpaired mappings
+-- (e.g. yon, yob) still take priority when typed without pausing.
+M.setup = function()
+    local wk = require("which-key")
+    for _, prefix in ipairs({ "yo", "<s", ">s", "=s" }) do
+        vim.keymap.set("n", prefix, function()
+            wk.show({ keys = prefix, mode = "n" })
+        end)
+    end
+end
 
 return M
